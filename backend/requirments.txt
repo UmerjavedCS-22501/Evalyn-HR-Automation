@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+requests
+python-dotenv
+langgraph
+langchain-groq
+langchain-core
+passlib[bcrypt]
+sqlalchemy
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+PyMuPDF

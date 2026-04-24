@@ -1,0 +1,28 @@
+# Python
+**/__pycache__/
+**/*.py[cod]
+**/*$py.class
+backend/.env
+backend/uploads/
+backend/client_secret.json
+venv/
+.venv/
+
+# Node
+node_modules/
+.next/
+out/
+build/
+frontend/.env*
+frontend/.vercel
+frontend/client_secret.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
