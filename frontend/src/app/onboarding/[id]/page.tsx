@@ -20,6 +20,11 @@ interface OnboardingData {
   onboarding_status: string;
   reporting_manager: string | null;
   profile_pic: string | null;
+  docs: {
+    cnic: string | null;
+    degree: string | null;
+    experience: string | null;
+  };
 }
 
 const STEPS = [
