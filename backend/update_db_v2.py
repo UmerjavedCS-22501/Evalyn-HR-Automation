@@ -11,15 +11,14 @@ def update_db():
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
         
-        # Add salary column
-        cur.execute("ALTER TABLE applications ADD COLUMN IF NOT EXISTS salary VARCHAR;")
-        # Add offer_status column
-        cur.execute("ALTER TABLE applications ADD COLUMN IF NOT EXISTS offer_status VARCHAR;")
+        cur.execute("ALTER TABLE applications ADD COLUMN IF NOT EXISTS start_date VARCHAR;")
+        cur.execute("ALTER TABLE applications ADD COLUMN IF NOT EXISTS reporting_manager VARCHAR;")
+        cur.execute("ALTER TABLE applications ADD COLUMN IF NOT EXISTS acceptance_deadline VARCHAR;")
         
         conn.commit()
         cur.close()
         conn.close()
-        print("Database updated successfully!")
+        print("Database updated with extra offer fields!")
     except Exception as e:
         print(f"Error updating database: {e}")
 

@@ -15,12 +15,16 @@ export default function LandingPage() {
       {/* Floating Navbar */}
       <nav className={styles.navbar}>
         <div className={styles.logo}>
-          <div className={styles.logoIcon}>✨</div>
-          Evalyn
+          <div className={styles.logoIcon}>
+            <div className={styles.logoInner}></div>
+            <div className={styles.logoInner}></div>
+            <div className={styles.logoInner}></div>
+          </div>
+          <span className={styles.logoText}>Evalyn</span>
         </div>
         <div className={styles.navLinks}>
-           <Link href="/login">Platform Login</Link>
-           <Link href="/register" className={styles.ctaBtn}>Start Hiring</Link>
+           <Link href="/login">Login</Link>
+           <Link href="/register" className={styles.ctaBtn}>Sign up</Link>
         </div>
       </nav>
 
@@ -37,7 +41,7 @@ export default function LandingPage() {
             publish directly to LinkedIn, and evaluate candidates with precision.
           </p>
           <div className={styles.heroActions}>
-             <Link href="/register" className={styles.primaryBtn}>Generate Your First Job</Link>
+             <Link href="/register" className={styles.primaryBtn}>Sign up</Link>
              <button className={styles.secondaryBtn}>See Demo</button>
           </div>
         </div>

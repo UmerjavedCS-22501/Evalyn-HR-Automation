@@ -49,54 +49,69 @@ function LoginContent() {
   };
 
   return (
-    <div className={styles.authCard}>
-      <div className={styles.authLogo}>
-        <div className={styles.logoIcon}>✨</div>
-        Evalyn
+    <div className={styles.blurContainer}>
+      {isLoading && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.spinner}></div>
+          <div style={{ fontWeight: "700", letterSpacing: "1px", textTransform: "uppercase", fontSize: "0.75rem" }}>
+            Securing Session...
+          </div>
+        </div>
+      )}
+      
+      <div className={`${styles.authCard} ${isLoading ? styles.blurActive : ""}`}>
+        <div className={styles.authLogo}>
+          <div className={styles.logoIcon}>
+            <div className={styles.logoInner}></div>
+            <div className={styles.logoInner}></div>
+            <div className={styles.logoInner}></div>
+          </div>
+          <span className={styles.logoText}>Evalyn</span>
+        </div>
+        <h1 className={styles.title}>Welcome Back</h1>
+        <p className={styles.subtitle}>Sign in to your recruitment command center</p>
+
+        {message && <div style={{ color: "#10b981", marginBottom: "1.5rem", fontSize: "0.9rem", textAlign: "center", fontWeight: "600" }}>{message}</div>}
+        {error && <div className={styles.errorBanner}>{error}</div>}
+
+        <form onSubmit={handleLogin} className={styles.form}>
+          <div className={styles.inputWrap}>
+            <label htmlFor="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              placeholder="name@company.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className={styles.inputWrap}>
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="premium-btn"
+            style={{ width: "100%", padding: "1.1rem 0", marginTop: "1rem" }}
+            disabled={isLoading}
+          >
+            {isLoading ? "Authenticating..." : "Login"}
+          </button>
+        </form>
+
+        <p className={styles.footer}>
+          New to Evalyn? <Link href="/register">Create an account</Link>
+        </p>
       </div>
-      <h1 className={styles.title}>Welcome Back</h1>
-      <p className={styles.subtitle}>Sign in to your recruitment command center</p>
-
-      {message && <div style={{ color: "#10b981", marginBottom: "1.5rem", fontSize: "0.9rem", textAlign: "center", fontWeight: "600" }}>{message}</div>}
-      {error && <div className={styles.errorBanner}>{error}</div>}
-
-      <form onSubmit={handleLogin} className={styles.form}>
-        <div className={styles.inputWrap}>
-          <label htmlFor="email">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="name@company.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div className={styles.inputWrap}>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="premium-btn"
-          style={{ width: "100%", padding: "1.1rem 0", marginTop: "1rem" }}
-          disabled={isLoading}
-        >
-          {isLoading ? "Authenticating..." : "Access Dashboard"}
-        </button>
-      </form>
-
-      <p className={styles.footer}>
-        New to Evalyn? <Link href="/register">Create an account</Link>
-      </p>
     </div>
   );
 }

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.job import Job
 from app.services.ai_agent import generate_job_post, generate_structured_job
+from app.services.email_service import send_review_request_email
 from pydantic import BaseModel
 from typing import Optional
 
@@ -119,3 +120,71 @@ def delete_job(job_id: int, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.patch("/job/{job_id}")
+def update_job(job_id: int, job_data: dict, db: Session = Depends(get_db)):
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    for key, value in job_data.items():
+        if hasattr(job, key):
+            setattr(job, key, value)
+    
+    try:
+        db.commit()
+        return {"message": "Job updated successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+class ReviewSubmission(BaseModel):
+    status: str # "Approved" or "Changes Requested"
+    feedback: Optional[str] = None
+
+@router.post("/job/{job_id}/request-review")
+def request_job_review(job_id: int, db: Session = Depends(get_db)):
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    
+    # Send email
+    success = send_review_request_email(job_id, job.title)
+    
+    if success:
+        job.approval_status = "Pending Review"
+        db.commit()
+        return {"message": "Review request sent"}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to send review email")
+
+@router.post("/job/{job_id}/submit-review")
+def submit_job_review(job_id: int, submission: ReviewSubmission, db: Session = Depends(get_db)):
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+        
+    job.approval_status = submission.status
+    job.manager_feedback = submission.feedback
+    
+    try:
+        db.commit()
+        return {"message": f"Review submitted: {submission.status}"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@router.post("/job/{job_id}/cancel-review")
+def cancel_job_review(job_id: int, db: Session = Depends(get_db)):
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found")
+    try:
+        job.approval_status = "Draft"
+        job.manager_feedback = None
+        db.commit()
+        return {"message": "Review cancelled, status reset to Draft"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+

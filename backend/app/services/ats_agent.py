@@ -51,7 +51,7 @@ def parse_cv_node(state: ATSAgentState):
     except Exception as e:
         return {"error": f"Failed to parse CV: {str(e)}"}
         
-    return {"cv_text": cv_text[:5000]} # Limit text to prevent context overflow
+    return {"cv_text": cv_text[:10000]} # Limit text to prevent context overflow
 
 # 4. Node to evaluate the ATS
 def evaluate_ats_node(state: ATSAgentState):
@@ -63,48 +63,49 @@ def evaluate_ats_node(state: ATSAgentState):
         return {"error": "GROQ_API_KEY not found in .env."}
 
     prompt = f"""
-    You are an expert ATS AI evaluating a candidate against a job description.
-    
-    JOB DESCRIPTION:
-    {state.get('job_description', '')}
-    
-    CANDIDATE DETAILS:
-    - Skills Submitted: {state.get('skills', '')}
-    - Experience Submitted: {state.get('experience', '')}
-    - Cover Letter: {state.get('cover_letter', '')}
-    
-    CANDIDATE CV TEXT:
-    {state.get('cv_text', '')}
-    
-    Your task is to analyze the candidate's fit for the job and return the analysis strictly as a valid JSON object.
-    
-    JSON SCHEMA REQUIRED:
+    You are an expert ATS (Applicant Tracking System) Auditor. Your goal is to provide a highly professional, accurate, and unbiased evaluation of a candidate's fit for a specific role.
+
+    CRITICAL RULES:
+    1. Only credit skills if they are explicitly mentioned or clearly implied by experience in the CV text.
+    2. Cross-reference the "Skills Submitted" by the candidate with the "CV Text". If a candidate claims a skill that is nowhere in the CV, verify if it's a realistic claim or a potential mismatch.
+    3. Be strict on "Job Requirements". If a skill is "Required" in the JD, weight its absence heavily.
+
+    INPUT DATA:
+    - JOB DESCRIPTION: {state.get('job_description', '')}
+    - SKILLS SUBMITTED BY CANDIDATE: {state.get('skills', '')}
+    - EXPERIENCE SUMMARY: {state.get('experience', '')}
+    - CV TEXT: {state.get('cv_text', '')}
+
+    EVALUATION CRITERIA:
+    1. Skill Match (50%): Comparing JD requirements vs (CV Text + Submitted Skills). Look for keyword matching and semantic similarity (e.g., "FastAPI" matches "Web Frameworks").
+    2. Experience Fit (30%): Years of experience and seniority level match.
+    3. Educational/Certification Fit (20%): Degree requirements and relevant certifications.
+
+    OUTPUT FORMAT (STRICT JSON):
     {{
-      "ats_score": 0, // Integer 0-100 (Skills 50%, Experience 30%, Education 20%)
-      "skill_match": "Percentage string like '85%'",
-      "experience_match": "Percentage string like '90%'",
-      "education_match": "Percentage string like '100%'",
-      "missing_skills": ["Skill 1", "Skill 2"],
-      "strengths": ["Strength 1", "Strength 2"],
-      "weaknesses": ["Weakness 1", "Weakness 2"],
-      "recommendation": "Highly Suitable | Moderately Suitable | Not Suitable"
+      "ats_score": 0, // 0-100
+      "skill_match": "Percentage string",
+      "experience_match": "Percentage string",
+      "education_match": "Percentage string",
+      "missing_skills": ["List specific missing keywords from JD"],
+      "strengths": ["Identify 3-5 professional strengths based on CV evidence"],
+      "weaknesses": ["Identify gaps or areas for clarification"],
+      "recommendation": "Highly Suitable | Moderately Suitable | Not Suitable",
+      "summary": "A 2-sentence professional summary of the candidate's profile."
     }}
-    
-    Ensure your output is ONLY the raw JSON object and nothing else.
+
+    Return ONLY the JSON object.
     """
 
     try:
         messages = [
-            SystemMessage(content="You are an expert ATS (Applicant Tracking System) AI."),
+            SystemMessage(content="You are a professional Recruitment Auditor and ATS Specialist."),
             HumanMessage(content=prompt)
         ]
         response = model.invoke(messages)
-        
-        # Parse JSON to validate, then stringify back for state (or keep as string if desired)
-        result_json_str = response.content
-        return {"ats_result": result_json_str}
+        return {"ats_result": response.content}
     except Exception as e:
-        return {"error": f"AI Error (Groq): {str(e)}"}
+        return {"error": f"AI Error: {str(e)}"}
 
 # 5. Build the Graph
 workflow = StateGraph(ATSAgentState)

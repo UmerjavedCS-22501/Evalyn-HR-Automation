@@ -1,6 +1,6 @@
 .wrapper {
   min-height: 100vh;
-  background: #0b0d17;
+  background: radial-gradient(circle at 20% 20%, #1e1b4b 0%, #0b0d17 100%);
   color: white;
   position: relative;
   overflow: hidden;
@@ -48,7 +48,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 4rem;
+  padding: 1rem 4rem;
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
@@ -69,12 +69,29 @@
 .logoIcon {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-  border-radius: 8px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  font-size: 1rem;
+  gap: 4px;
+}
+
+.logoInner {
+  height: 4px;
+  background: linear-gradient(90deg, #6366f1, #a855f7);
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+
+.logoInner:nth-child(1) { width: 100%; }
+.logoInner:nth-child(2) { width: 70%; }
+.logoInner:nth-child(3) { width: 90%; }
+
+.logoText {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: white;
+  letter-spacing: -0.5px;
+  margin-left: 4px;
 }
 
 .navLinks {
@@ -102,11 +119,11 @@
 
 /* Hero Section */
 .hero {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 8rem 2rem;
+  max-width: 1400px;
+  margin-left: 4rem;
+  padding: 4rem 0;
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1.1fr 1fr;
   align-items: center;
   gap: 4rem;
 }
@@ -124,11 +141,11 @@
 }
 
 .mainTitle {
-  font-size: 5rem;
-  line-height: 1.1;
+  font-size: 4.5rem;
+  line-height: 1.05;
   font-weight: 900;
-  margin-bottom: 2rem;
-  letter-spacing: -0.03em;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.04em;
 }
 
 .gradientText {
@@ -147,7 +164,7 @@
 
 .heroActions {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .primaryBtn {
@@ -276,12 +293,12 @@
 
 /* Features Section */
 .features {
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 4rem 2rem 8rem;
+  padding: 6rem 2rem 10rem;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+  gap: 2rem;
 }
 
 .featureItem {

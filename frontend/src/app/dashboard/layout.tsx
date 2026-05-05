@@ -30,6 +30,7 @@ export default function DashboardLayout({
     { name: "New Job", path: "/dashboard/jobs/new", icon: "➕" },
     { name: "Generated Jobs", path: "/dashboard/generated", icon: "✨" },
     { name: "Applications", path: "/dashboard/applications", icon: "👥" },
+    { name: "Onboarding", path: "/dashboard/onboarding", icon: "🚀" },
     { name: "Integrations", path: "/dashboard/integrations", icon: "🔗" },
   ];
 
@@ -41,8 +42,12 @@ export default function DashboardLayout({
         </Link>
         
         <div className={styles.logo}>
-          <div className={styles.logoIcon}>✨</div>
-          Evalyn
+          <div className={styles.logoIcon}>
+            <div className={styles.logoInner}></div>
+            <div className={styles.logoInner}></div>
+            <div className={styles.logoInner}></div>
+          </div>
+          <span className={styles.logoText}>Evalyn</span>
         </div>
 
         <nav className={styles.nav}>

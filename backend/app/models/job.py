@@ -19,3 +19,5 @@ class Job(Base):
     currency = Column(String, nullable=True)
     period = Column(String, nullable=True)
     salary_note = Column(Text, nullable=True)
+    approval_status = Column(String, default="Draft")
+    manager_feedback = Column(Text, nullable=True)

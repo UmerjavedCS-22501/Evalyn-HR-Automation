@@ -34,8 +34,8 @@ export default function IntegrationsPage() {
   ]);
 
   return (
-    <div>
-      <h1 style={{ fontSize: "1.5rem", fontWeight: "700", marginBottom: "0.5rem" }}>Integrations</h1>
+    <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+      <h1 style={{ fontSize: "1.75rem", fontWeight: "800", marginBottom: "0.5rem", letterSpacing: "-0.5px" }}>Integrations</h1>
       <p style={{ color: "#64748b", marginBottom: "2.5rem" }}>Connect your external accounts to automate your recruitment workflow.</p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1.5rem" }}>

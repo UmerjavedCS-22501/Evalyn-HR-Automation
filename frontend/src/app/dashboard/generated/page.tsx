@@ -9,6 +9,8 @@ interface Job {
   department: string;
   location: string;
   description: string;
+  approval_status?: string;
+  manager_feedback?: string;
 }
 
 export default function GeneratedJobsPage() {
@@ -21,6 +23,44 @@ export default function GeneratedJobsPage() {
   const [activeJobId, setActiveJobId] = useState<number | null>(null);
   const [verifyEmail, setVerifyEmail] = useState("");
   const [verifyPassword, setVerifyPassword] = useState("");
+  
+  // Edit Modal State
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [editDescription, setEditDescription] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [isReviewing, setIsReviewing] = useState<number | null>(null);
+
+  const handleSendForReview = async (jobId: number) => {
+    setIsReviewing(jobId);
+    try {
+      const res = await fetch(`http://localhost:8000/job/${jobId}/request-review`, { method: "POST" });
+      if (res.ok) {
+        setJobs(jobs.map(j => j.id === jobId ? { ...j, approval_status: "Pending Review" } : j));
+        alert("✅ Review request sent to Operation Manager!");
+      } else {
+        const data = await res.json();
+        alert("❌ Failed: " + (data.detail || "Unknown error"));
+      }
+    } catch (err) {
+      alert("❌ Connection error.");
+    } finally {
+      setIsReviewing(null);
+    }
+  };
+
+  const handleCancelReview = async (jobId: number) => {
+    if (!confirm("Cancel the review request? The status will reset to Draft.")) return;
+    try {
+      const res = await fetch(`http://localhost:8000/job/${jobId}/cancel-review`, { method: "POST" });
+      if (res.ok) {
+        setJobs(jobs.map(j => j.id === jobId ? { ...j, approval_status: "Draft", manager_feedback: undefined } : j));
+      } else {
+        alert("Failed to cancel review.");
+      }
+    } catch {
+      alert("Connection error.");
+    }
+  };
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -104,10 +144,33 @@ export default function GeneratedJobsPage() {
     }
   };
 
+  const handleSaveEdit = async () => {
+    if (!editingJob) return;
+    setIsSavingEdit(true);
+    try {
+      const res = await fetch(`http://localhost:8000/job/${editingJob.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: editDescription })
+      });
+      if (res.ok) {
+        setJobs(jobs.map(j => j.id === editingJob.id ? { ...j, description: editDescription } : j));
+        setEditingJob(null);
+        alert("Job post updated successfully!");
+      } else {
+        alert("Failed to update job post.");
+      }
+    } catch (err) {
+      console.error("Edit error", err);
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
   return (
-    <div>
+    <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
-        <h1 style={{ fontSize: "1.5rem", fontWeight: "700" }}>Generated Jobs</h1>
+        <h1 style={{ fontSize: "1.75rem", fontWeight: "800", letterSpacing: "-0.5px" }}>Generated Jobs</h1>
         <Link href="/dashboard/jobs/new" className="premium-btn" style={{ padding: "0.6rem 1.5rem", fontSize: "0.875rem" }}>
           + New Job
         </Link>
@@ -128,9 +191,26 @@ export default function GeneratedJobsPage() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
                 <div>
                   <h3 style={{ fontSize: "1.125rem", fontWeight: "600", marginBottom: "0.25rem" }}>{job.title}</h3>
-                  <div style={{ display: "flex", gap: "1rem", fontSize: "0.75rem", color: "#64748b" }}>
+                  <div style={{ display: "flex", gap: "1rem", fontSize: "0.75rem", color: "#64748b", alignItems: "center" }}>
                     <span>📍 {job.location || "Remote"}</span>
                     <span>🏢 {job.department || "Engineering"}</span>
+                    {/* Approval Status Badge */}
+                    <span style={{
+                      padding: "0.15rem 0.5rem",
+                      borderRadius: "99px",
+                      fontWeight: "700",
+                      fontSize: "0.7rem",
+                      background: job.approval_status === "Approved" ? "#dcfce7" :
+                                  job.approval_status === "Pending Review" ? "#fef9c3" :
+                                  job.approval_status === "Changes Requested" ? "#fee2e2" : "#f1f5f9",
+                      color: job.approval_status === "Approved" ? "#166534" :
+                             job.approval_status === "Pending Review" ? "#854d0e" :
+                             job.approval_status === "Changes Requested" ? "#991b1b" : "#64748b"
+                    }}>
+                      {job.approval_status === "Approved" ? "✓ Approved" :
+                       job.approval_status === "Pending Review" ? "⏳ Pending Review" :
+                       job.approval_status === "Changes Requested" ? "✏️ Changes Requested" : "Draft"}
+                    </span>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -156,12 +236,42 @@ export default function GeneratedJobsPage() {
                   >
                     {isPublishing === job.id ? "Publishing..." : "Publish LinkedIn"}
                   </button>
+                  <button 
+                    onClick={() => {
+                        setEditingJob(job);
+                        setEditDescription(job.description);
+                    }}
+                    style={{ fontSize: "0.75rem", padding: "0.4rem 0.8rem", borderRadius: "6px", background: "#3b82f6", border: "none", cursor: "pointer", color: "white", fontWeight: "600" }}
+                  >
+                    Edit Post
+                  </button>
                   <button onClick={() => {
                     navigator.clipboard.writeText(job.description);
                     alert("Post copied to clipboard!");
                   }} style={{ fontSize: "0.75rem", padding: "0.4rem 0.8rem", borderRadius: "6px", background: "#f1f5f9", border: "none", cursor: "pointer", color: "#1e293b" }}>
                     Copy Post
                   </button>
+                  <button 
+                    onClick={() => handleSendForReview(job.id)}
+                    disabled={isReviewing === job.id || job.approval_status === "Pending Review" || job.approval_status === "Approved"}
+                    style={{ 
+                      fontSize: "0.75rem", padding: "0.4rem 0.8rem", borderRadius: "6px",
+                      background: job.approval_status === "Approved" ? "#dcfce7" : job.approval_status === "Pending Review" ? "#fef9c3" : "#7c3aed",
+                      color: job.approval_status === "Approved" ? "#166534" : job.approval_status === "Pending Review" ? "#854d0e" : "white",
+                      border: "none", cursor: job.approval_status === "Pending Review" || job.approval_status === "Approved" ? "default" : "pointer",
+                      fontWeight: "600"
+                    }}
+                  >
+                    {isReviewing === job.id ? "Sending..." : job.approval_status === "Pending Review" ? "Sent for Review" : job.approval_status === "Approved" ? "✓ Approved" : "Send for Review"}
+                  </button>
+                  {job.approval_status === "Pending Review" && (
+                    <button
+                      onClick={() => handleCancelReview(job.id)}
+                      style={{ fontSize: "0.75rem", padding: "0.4rem 0.8rem", borderRadius: "6px", background: "#f1f5f9", color: "#64748b", border: "1px solid #e2e8f0", cursor: "pointer", fontWeight: "600" }}
+                    >
+                      Cancel
+                    </button>
+                  )}
                   <button 
                     onClick={() => handleDelete(job.id)}
                     style={{ fontSize: "0.75rem", padding: "0.4rem 0.8rem", borderRadius: "6px", background: "#fee2e2", color: "#ef4444", border: "none", cursor: "pointer" }}
@@ -173,6 +283,12 @@ export default function GeneratedJobsPage() {
               <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: "8px", fontSize: "0.8125rem", color: "#334155", whiteSpace: "pre-wrap", maxHeight: "200px", overflowY: "auto", border: "1px solid #e2e8f0" }}>
                 {job.description}
               </div>
+              {/* Manager Feedback Alert */}
+              {job.approval_status === "Changes Requested" && job.manager_feedback && (
+                <div style={{ marginTop: "0.75rem", padding: "0.75rem 1rem", background: "#fff7ed", borderRadius: "8px", border: "1px solid #fed7aa", fontSize: "0.8125rem", color: "#9a3412" }}>
+                  <strong>📝 Manager Feedback:</strong> {job.manager_feedback}
+                </div>
+              )}
               <div style={{ marginTop: "0.5rem", fontSize: "0.7rem", color: "#94a3b8" }}>
                  Application URL: http://localhost:3000/jobs/{job.id}/apply
               </div>
@@ -248,6 +364,66 @@ export default function GeneratedJobsPage() {
                         style={{ flex: 1, padding: "0.75rem", borderRadius: "8px", border: "none", background: "#0077b5", color: "white", cursor: "pointer", fontWeight: "600", fontSize: "0.875rem" }}
                     >
                         Confirm & Publish
+                    </button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editingJob && (
+        <div style={{
+            position: "fixed",
+            top: 0, left: 0, width: "100%", height: "100%",
+            background: "rgba(15, 23, 42, 0.6)",
+            backdropFilter: "blur(8px)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 1000,
+            padding: "20px"
+        }}>
+            <div style={{
+                background: "white",
+                width: "100%",
+                maxWidth: "600px",
+                borderRadius: "24px",
+                padding: "2rem",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+            }}>
+                <h2 style={{ fontSize: "1.25rem", fontWeight: "700", color: "#1e293b", marginBottom: "1rem" }}>Edit Job Post</h2>
+                <p style={{ fontSize: "0.875rem", color: "#64748b", marginBottom: "1.5rem" }}>Update the description for <span style={{ fontWeight: "600", color: "#3b82f6" }}>{editingJob.title}</span></p>
+                
+                <textarea 
+                    value={editDescription}
+                    onChange={(e) => setEditDescription(e.target.value)}
+                    style={{ 
+                        width: "100%", 
+                        height: "300px", 
+                        padding: "1rem", 
+                        borderRadius: "12px", 
+                        border: "1px solid #e2e8f0", 
+                        fontSize: "0.875rem", 
+                        lineHeight: "1.6",
+                        resize: "none",
+                        outline: "none",
+                        marginBottom: "1.5rem",
+                        fontFamily: "inherit"
+                    }}
+                />
+
+                <div style={{ display: "flex", gap: "1rem" }}>
+                    <button 
+                        onClick={() => setEditingJob(null)}
+                        style={{ flex: 1, padding: "0.75rem", borderRadius: "12px", border: "1px solid #e2e8f0", background: "white", color: "#475569", fontWeight: "600", cursor: "pointer" }}
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        className="premium-btn"
+                        style={{ flex: 1, padding: "0.75rem", borderRadius: "12px" }}
+                        onClick={handleSaveEdit}
+                        disabled={isSavingEdit}
+                    >
+                        {isSavingEdit ? "Saving..." : "Save Changes"}
                     </button>
                 </div>
             </div>

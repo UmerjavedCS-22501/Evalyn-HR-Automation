@@ -1,5 +1,5 @@
 .container {
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -9,10 +9,11 @@
 }
 
 .title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
   color: #1e293b;
+  letter-spacing: -0.5px;
 }
 
 .stepIndicator {
