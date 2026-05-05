@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "@/config";
 import styles from "./onboarding.module.css";
 
 interface HiredCandidate {
@@ -22,14 +23,14 @@ export default function OnboardingPage() {
   const [selectedCandidate, setSelectedCandidate] = useState<any>(null);
 
   const fetchCandidateDetails = (id: number) => {
-    fetch(`http://localhost:8000/applications/${id}/onboarding`)
+    fetch(`${API_BASE_URL}/applications/${id}/onboarding`)
       .then(res => res.json())
       .then(data => setSelectedCandidate(data))
       .catch(err => console.error(err));
   };
 
   const fetchCandidates = () => {
-    fetch("http://localhost:8000/applications/hired")
+    fetch(`${API_BASE_URL}/applications/hired`)
       .then(res => res.json())
       .then(data => setCandidates(data))
       .catch(err => console.error("Fetch error", err))
@@ -43,7 +44,7 @@ export default function OnboardingPage() {
   const sendOnboardingLink = async (id: number) => {
     setProcessing(id);
     try {
-      const res = await fetch(`http://localhost:8000/applications/${id}/send-onboarding-link`, {
+      const res = await fetch(`${API_BASE_URL}/applications/${id}/send-onboarding-link`, {
         method: "POST"
       });
       if (res.ok) alert("Onboarding link sent to candidate!");
@@ -196,7 +197,7 @@ export default function OnboardingPage() {
               <div className={styles.largeAvatar}>
                 {selectedCandidate.profile_pic ? (
                   <img 
-                    src={`http://localhost:8000/uploads/onboarding/${selectedCandidate.profile_pic.split(/[\\/]/).pop()}`} 
+                    src={`${API_BASE_URL}/uploads/onboarding/${selectedCandidate.profile_pic.split(/[\\/]/).pop()}`} 
                     alt="Profile" 
                     className={styles.avatarImg}
                   />
@@ -237,19 +238,19 @@ export default function OnboardingPage() {
             <div className={styles.detailSection}>
               <h3>Onboarding Documents</h3>
               {selectedCandidate.docs.cnic ? (
-                <a href={`http://localhost:8000/uploads/onboarding/${selectedCandidate.docs.cnic.split('\\').pop()}`} target="_blank" className={styles.docLink}>
+                <a href={`${API_BASE_URL}/uploads/onboarding/${selectedCandidate.docs.cnic.split('\\').pop()}`} target="_blank" className={styles.docLink}>
                   📄 CNIC / National ID
                 </a>
               ) : <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>CNIC not uploaded</p>}
               
               {selectedCandidate.docs.degree ? (
-                <a href={`http://localhost:8000/uploads/onboarding/${selectedCandidate.docs.degree.split('\\').pop()}`} target="_blank" className={styles.docLink}>
+                <a href={`${API_BASE_URL}/uploads/onboarding/${selectedCandidate.docs.degree.split('\\').pop()}`} target="_blank" className={styles.docLink}>
                   🎓 Educational Degree
                 </a>
               ) : <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Degree not uploaded</p>}
               
               {selectedCandidate.docs.experience ? (
-                <a href={`http://localhost:8000/uploads/onboarding/${selectedCandidate.docs.experience.split('\\').pop()}`} target="_blank" className={styles.docLink}>
+                <a href={`${API_BASE_URL}/uploads/onboarding/${selectedCandidate.docs.experience.split('\\').pop()}`} target="_blank" className={styles.docLink}>
                   💼 Experience Letter
                 </a>
               ) : <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>Experience letter not uploaded</p>}

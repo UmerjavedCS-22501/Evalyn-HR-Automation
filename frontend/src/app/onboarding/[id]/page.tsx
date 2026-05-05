@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/config";
 import styles from "./onboarding.module.css";
 
 interface OnboardingData {
@@ -55,7 +56,7 @@ export default function CandidateOnboarding() {
   const [policyAccepted, setPolicyAccepted] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/applications/${id}/onboarding`)
+    fetch(`${API_BASE_URL}/applications/${id}/onboarding`)
       .then(res => res.json())
       .then(d => {
         setData(d);
@@ -90,7 +91,7 @@ export default function CandidateOnboarding() {
             setSaving(false);
             return;
         }
-        await fetch(`http://localhost:8000/applications/${id}/personal-info`, {
+        await fetch(`${API_BASE_URL}/applications/${id}/personal-info`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form)
@@ -107,7 +108,7 @@ export default function CandidateOnboarding() {
         if (files.degree) formData.append("degree", files.degree);
         if (files.experience) formData.append("experience", files.experience);
         
-        await fetch(`http://localhost:8000/applications/${id}/upload-docs`, {
+        await fetch(`${API_BASE_URL}/applications/${id}/upload-docs`, {
           method: "POST",
           body: formData
         });
@@ -117,10 +118,10 @@ export default function CandidateOnboarding() {
             setSaving(false);
             return;
         }
-        await fetch(`http://localhost:8000/applications/${id}/accept-policy`, { method: "POST" });
+        await fetch(`${API_BASE_URL}/applications/${id}/accept-policy`, { method: "POST" });
       } else if (currentStep === 4) {
         // Mock training completion for now
-        await fetch(`http://localhost:8000/applications/${id}/update-training`, {
+        await fetch(`${API_BASE_URL}/applications/${id}/update-training`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ progress: 100 })

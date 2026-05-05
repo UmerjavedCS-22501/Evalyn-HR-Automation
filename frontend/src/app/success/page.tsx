@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, Suspense, useEffect } from "react";
+import { API_BASE_URL } from "@/config";
 import styles from "./success.module.css";
 
 function SuccessContent() {
@@ -41,7 +42,7 @@ function SuccessContent() {
     formData.append("acc_password", accPassword);
 
     try {
-      const response = await fetch("http://localhost:8000/auth/linkedin/post", {
+      const response = await fetch(`${API_BASE_URL}/auth/linkedin/post`, {
         method: "POST",
         body: formData,
       });

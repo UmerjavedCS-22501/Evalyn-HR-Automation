@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { API_BASE_URL } from "@/config";
 
 /**
  * Google OAuth callback handler.
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
   try {
     // Forward code to FastAPI which exchanges it and stores credentials
     const backendRes = await fetch(
-      `http://localhost:8000/google/callback?code=${encodeURIComponent(code)}`
+      `${API_BASE_URL}/google/callback?code=${encodeURIComponent(code)}`
     );
 
     if (!backendRes.ok) {

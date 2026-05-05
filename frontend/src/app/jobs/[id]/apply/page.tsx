@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { API_BASE_URL } from "@/config";
 import styles from "./apply.module.css";
 
 export default function ApplyPage() {
@@ -25,7 +26,7 @@ export default function ApplyPage() {
     const fetchJob = async () => {
       console.log("Fetching details for Job ID:", id);
       try {
-        const response = await fetch(`http://localhost:8000/job/${id}`);
+        const response = await fetch(`${API_BASE_URL}/job/${id}`);
         if (!response.ok) {
           setError("Job position not found. It may have been removed or the link is invalid.");
           setLoading(false);
@@ -63,7 +64,7 @@ export default function ApplyPage() {
     formData.append("cv", cv);
 
     try {
-      const response = await fetch(`http://localhost:8000/applications/apply/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/applications/apply/${id}`, {
         method: "POST",
         body: formData,
       });

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { API_BASE_URL } from "@/config";
 import styles from "../../page.module.css"; // Reuse general styles or create apply.module.css
 import successStyles from "../../success/success.module.css";
 
@@ -25,7 +26,7 @@ export default function ApplyPage() {
     // Fetch job details to show the candidate what they are applying for
     const fetchJob = async () => {
       try {
-        const response = await fetch(`http://localhost:8000/job/${id}`);
+        const response = await fetch(`${API_BASE_URL}/job/${id}`);
         const data = await response.json();
         setJob(data);
       } catch (err) {
@@ -51,7 +52,7 @@ export default function ApplyPage() {
     formData.append("cv", cv);
 
     try {
-      const response = await fetch(`http://localhost:8000/applications/apply/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/applications/apply/${id}`, {
         method: "POST",
         body: formData,
       });

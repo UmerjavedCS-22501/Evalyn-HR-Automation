@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from "react";
+import { API_BASE_URL } from "@/config";
 
 interface Job {
   id: number;
@@ -23,7 +24,7 @@ export default function ReviewJobPage({ params }: { params: Promise<{ id: string
 
   useEffect(() => {
     if (!jobId) return;
-    fetch(`http://localhost:8000/job/${jobId}`)
+    fetch(`${API_BASE_URL}/job/${jobId}`)
       .then((res) => {
         if (!res.ok) throw new Error(`API returned ${res.status}`);
         return res.json();
@@ -40,7 +41,7 @@ export default function ReviewJobPage({ params }: { params: Promise<{ id: string
     }
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:8000/job/${jobId}/submit-review`, {
+      const res = await fetch(`${API_BASE_URL}/job/${jobId}/submit-review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status, feedback: feedback.trim() || null }),

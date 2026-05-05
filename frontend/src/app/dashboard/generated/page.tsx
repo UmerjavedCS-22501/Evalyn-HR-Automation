@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { API_BASE_URL } from "@/config";
 
 interface Job {
   id: number;
@@ -33,7 +34,7 @@ export default function GeneratedJobsPage() {
   const handleSendForReview = async (jobId: number) => {
     setIsReviewing(jobId);
     try {
-      const res = await fetch(`http://localhost:8000/job/${jobId}/request-review`, { method: "POST" });
+      const res = await fetch(`${API_BASE_URL}/job/${jobId}/request-review`, { method: "POST" });
       if (res.ok) {
         setJobs(jobs.map(j => j.id === jobId ? { ...j, approval_status: "Pending Review" } : j));
         alert("✅ Review request sent to Operation Manager!");
@@ -51,7 +52,7 @@ export default function GeneratedJobsPage() {
   const handleCancelReview = async (jobId: number) => {
     if (!confirm("Cancel the review request? The status will reset to Draft.")) return;
     try {
-      const res = await fetch(`http://localhost:8000/job/${jobId}/cancel-review`, { method: "POST" });
+      const res = await fetch(`${API_BASE_URL}/job/${jobId}/cancel-review`, { method: "POST" });
       if (res.ok) {
         setJobs(jobs.map(j => j.id === jobId ? { ...j, approval_status: "Draft", manager_feedback: undefined } : j));
       } else {
@@ -65,7 +66,7 @@ export default function GeneratedJobsPage() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch("http://localhost:8000/jobs/all"); 
+        const res = await fetch(`${API_BASE_URL}/jobs/all`); 
         const data = await res.json();
         setJobs(data);
       } catch (err) {
@@ -81,7 +82,7 @@ export default function GeneratedJobsPage() {
     if (!confirm("Are you sure you want to delete this job and all its applications?")) return;
     
     try {
-      const res = await fetch(`http://localhost:8000/job/${jobId}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE_URL}/job/${jobId}`, { method: "DELETE" });
       if (res.ok) {
         setJobs(jobs.filter(j => j.id !== jobId));
       } else {
@@ -101,7 +102,7 @@ export default function GeneratedJobsPage() {
 
     if (!li_token || !li_urn) {
       if (confirm("You need to connect your LinkedIn account first. Connect now?")) {
-        window.location.href = "http://localhost:8000/auth/linkedin";
+        window.location.href = `${API_BASE_URL}/auth/linkedin`;
       }
       return;
     }
@@ -122,7 +123,7 @@ export default function GeneratedJobsPage() {
       formData.append("acc_email", verifyEmail);
       formData.append("acc_password", verifyPassword);
 
-      const res = await fetch("http://localhost:8000/post-job", {
+      const res = await fetch(`${API_BASE_URL}/post-job`, {
         method: "POST",
         body: formData,
       });
@@ -148,7 +149,7 @@ export default function GeneratedJobsPage() {
     if (!editingJob) return;
     setIsSavingEdit(true);
     try {
-      const res = await fetch(`http://localhost:8000/job/${editingJob.id}`, {
+      const res = await fetch(`${API_BASE_URL}/job/${editingJob.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description: editDescription })

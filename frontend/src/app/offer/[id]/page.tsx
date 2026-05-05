@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/config";
 import styles from "./offer.module.css";
 
 export default function OfferPage() {
@@ -15,7 +16,7 @@ export default function OfferPage() {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:8000/applications/${id}/public`)
+      fetch(`${API_BASE_URL}/applications/${id}/public`)
         .then((res) => {
           if (!res.ok) throw new Error("Offer not found");
           return res.json();
@@ -31,7 +32,7 @@ export default function OfferPage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch(`http://localhost:8000/applications/${id}/offer-response`, {
+      const res = await fetch(`${API_BASE_URL}/applications/${id}/offer-response`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),

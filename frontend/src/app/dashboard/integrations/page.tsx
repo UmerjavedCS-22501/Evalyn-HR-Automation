@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { API_BASE_URL } from "@/config";
 
 export default function IntegrationsPage() {
   const [integrations] = useState([
@@ -11,7 +12,7 @@ export default function IntegrationsPage() {
       description: "Auto-post job architect results directly to your feed.",
       status: "Connected",
       btnText: "Reconnect",
-      btnUrl: "http://localhost:8000/auth/linkedin"
+      btnUrl: `${API_BASE_URL}/auth/linkedin`
     },
     {
       id: "google_calendar",
@@ -20,7 +21,7 @@ export default function IntegrationsPage() {
       description: "Automatically schedule interviews with top-scoring candidates.",
       status: "Not Connected",
       btnText: "Connect Now",
-      btnUrl: "http://localhost:8000/google/login"
+      btnUrl: `${API_BASE_URL}/google/login`
     },
     {
       id: "gmail",

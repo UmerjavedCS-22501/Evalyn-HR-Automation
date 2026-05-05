@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import { API_BASE_URL } from "@/config";
 import styles from "./applications.module.css";
 
 interface Applicant {
@@ -44,7 +45,7 @@ export default function ApplicationsPage() {
   const [sendingOffer, setSendingOffer] = useState(false);
 
   useEffect(() => {
-    fetch("http://localhost:8000/applications/all")
+    fetch(`${API_BASE_URL}/applications/all`)
       .then(res => res.json())
       .then(data => {
         // Flatten the job-grouped data for a unified production table
@@ -80,7 +81,7 @@ export default function ApplicationsPage() {
     if (!confirm("Are you sure you want to delete this application?")) return;
     
     try {
-      const res = await fetch(`http://localhost:8000/applications/${appId}`, { method: "DELETE" });
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}`, { method: "DELETE" });
       if (res.ok) {
         setApplicants(applicants.filter(a => a.id !== appId));
       } else {
@@ -93,7 +94,7 @@ export default function ApplicationsPage() {
 
   const handleStatusUpdate = async (appId: number, newStatus: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/applications/${appId}/status`, {
+      const res = await fetch(`${API_BASE_URL}/applications/${appId}/status`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus })
@@ -116,7 +117,7 @@ export default function ApplicationsPage() {
     
     setSendingOffer(true);
     try {
-      const res = await fetch(`http://localhost:8000/applications/${selectedApplicant.id}/send-offer`, {
+      const res = await fetch(`${API_BASE_URL}/applications/${selectedApplicant.id}/send-offer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 

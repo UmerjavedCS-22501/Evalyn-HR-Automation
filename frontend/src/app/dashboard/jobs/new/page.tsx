@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { API_BASE_URL } from "@/config";
 import styles from "./new-job.module.css";
 
 export default function NewJobPage() {
@@ -40,7 +41,7 @@ export default function NewJobPage() {
     
     setIsGenerating(true);
     try {
-      const res = await fetch(`http://localhost:8000/generate-structure?prompt=${encodeURIComponent(prompt)}`, {
+      const res = await fetch(`${API_BASE_URL}/generate-structure?prompt=${encodeURIComponent(prompt)}`, {
         method: "POST"
       });
       const data = await res.json();
@@ -78,7 +79,7 @@ export default function NewJobPage() {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch("http://localhost:8000/generate-job", {
+      const res = await fetch(`${API_BASE_URL}/generate-job`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)
