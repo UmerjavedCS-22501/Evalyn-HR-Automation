@@ -12,7 +12,18 @@ services:
           property: connectionString
       - key: GROQ_API_KEY
         sync: false # Set this in the Render dashboard
-      # Add other necessary env vars here
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: CLIENT_ID
+        sync: false
+      - key: CLIENT_SECRET
+        sync: false
+      - key: REDIRECT_URI
+        sync: false
+      - key: FRONTEND_URL
+        sync: false # Set to https://evalyn-hr-automation-frontend.onrender.com
 
   # Frontend Next.js Service
   - type: web
@@ -25,7 +36,8 @@ services:
         fromService:
           type: web
           name: evalyn-backend
-          property: host
+          envVarKey: RENDER_EXTERNAL_URL
+
 
 databases:
   - name: evalyn-db

@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
 from app.routes import linkdin, job, auth, application, google_calendar
+from app.config.setting import FRONTEND_URL
 from app.db.database import engine, Base
 from app.models.job import Job
 from app.models.user import User
@@ -21,6 +22,7 @@ app = FastAPI(title="Evalyn - AI LinkedIn Assistant")
 
 # Add CORS Middleware
 origins = [
+    FRONTEND_URL,
     "https://evalyn-hr-automation-frontend.onrender.com",
     "http://localhost:3000", # keeping for local development
 ]

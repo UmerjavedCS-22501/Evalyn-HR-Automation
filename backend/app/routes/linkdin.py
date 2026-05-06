@@ -6,6 +6,7 @@ from urllib.parse import unquote, urlencode
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.job import Job
+from app.config.setting import FRONTEND_URL
 from app.services.linkdin_services import get_auth_url, get_access_token, get_user_info, post_on_linkedin
 
 router = APIRouter()
@@ -25,17 +26,17 @@ def linkedin_callback(request: Request, code: str = None, error: str = None, err
     auto_post = unquote(request.cookies.get("auto_post", "false"))
     
     if error:
-        return RedirectResponse(f"http://localhost:3000/auth-error?error={error}&description={error_description}")
+        return RedirectResponse(f"{FRONTEND_URL}/auth-error?error={error}&description={error_description}")
 
     if not code:
-        return RedirectResponse("http://localhost:3000/auth-error?error=no_code")
+        return RedirectResponse(f"{FRONTEND_URL}/auth-error?error=no_code")
 
     token_data = get_access_token(code)
     access_token = token_data.get("access_token")
     
     if not access_token:
         desc = token_data.get('error_description', 'Unknown error')
-        return RedirectResponse(f"http://localhost:3000/auth-error?error=token_failed&description={desc}")
+        return RedirectResponse(f"{FRONTEND_URL}/auth-error?error=token_failed&description={desc}")
     
     profile_info = get_user_info(access_token)
     person_urn = profile_info.get("sub")
@@ -53,7 +54,7 @@ def linkedin_callback(request: Request, code: str = None, error: str = None, err
         "pending_text": pending_text
     }
     
-    redirect_url = f"http://localhost:3000/success?{urlencode(params)}"
+    redirect_url = f"{FRONTEND_URL}/success?{urlencode(params)}"
     return RedirectResponse(redirect_url)
 
 @router.post("/post-job")
@@ -73,7 +74,7 @@ def linkedin_post_job(
         return {"status": "error", "message": "Job not found"}
     
     # Construct the professional LinkedIn post
-    apply_link = f"http://localhost:3000/jobs/{job_id}/apply"
+    apply_link = f"{FRONTEND_URL}/jobs/{job_id}/apply"
     post_text = f"{job.description}\n\n🚀 Apply Now: {apply_link}\n\n#Hiring #{job.title.replace(' ', '')} #Recruitment #Careers"
     
     result = post_on_linkedin(access_token, post_text, person_urn)

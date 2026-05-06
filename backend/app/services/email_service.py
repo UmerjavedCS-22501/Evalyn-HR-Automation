@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from app.config.setting import SMTP_USER, SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT
+from app.config.setting import SMTP_USER, SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT, FRONTEND_URL
 
 
 def send_application_email(candidate_data: dict, job_title: str, ats_score: int = None, ats_summary: str = None):
@@ -332,7 +332,7 @@ def send_review_request_email(job_id: int, job_title: str, manager_email: str = 
     Sends an email to the Operation Manager requesting a review of a generated job post.
     """
     try:
-        review_link = f"http://localhost:3000/jobs/review/{job_id}"
+        review_link = f"{FRONTEND_URL}/jobs/review/{job_id}"
 
         msg = MIMEMultipart("alternative")
         msg['From'] = SMTP_USER
@@ -437,7 +437,7 @@ def send_offer_letter_email(
     Sends a professional HTML offer letter to the candidate using the requested template.
     """
     try:
-        offer_link = f"http://localhost:3000/offer/{application_id}"
+        offer_link = f"{FRONTEND_URL}/offer/{application_id}"
         today_date = date.today().strftime("%B %d, %Y")
         company_name = "US Tech"
         company_address = "GT road Roshen PLAZA 2nd floor"
@@ -569,7 +569,7 @@ def send_onboarding_email(
     Sends a formal invitation to the candidate to start their onboarding process.
     """
     try:
-        onboarding_link = f"http://localhost:3000/onboarding/{application_id}"
+        onboarding_link = f"{FRONTEND_URL}/onboarding/{application_id}"
         company_name = "US Tech"
         
         msg = MIMEMultipart("alternative")

@@ -8,6 +8,7 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
 from fastapi import HTTPException
+from app.config.setting import FRONTEND_URL
 
 # Scopes needed for Google Calendar API
 SCOPES = [
@@ -35,7 +36,7 @@ def get_google_auth_url():
 
     params = {
         'client_id': web_config.get('client_id'),
-        'redirect_uri': 'http://localhost:3000/api/auth/callback/google',
+        'redirect_uri': f'{FRONTEND_URL}/api/auth/callback/google',
         'response_type': 'code',
         'scope': ' '.join(SCOPES),
         'access_type': 'offline',
@@ -66,7 +67,7 @@ def exchange_code_for_credentials(code: str):
         'code': code,
         'client_id': web_config.get('client_id'),
         'client_secret': web_config.get('client_secret'),
-        'redirect_uri': 'http://localhost:3000/api/auth/callback/google',
+        'redirect_uri': f'{FRONTEND_URL}/api/auth/callback/google',
         'grant_type': 'authorization_code'
     }
 

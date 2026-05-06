@@ -291,8 +291,9 @@ export default function GeneratedJobsPage() {
                 </div>
               )}
               <div style={{ marginTop: "0.5rem", fontSize: "0.7rem", color: "#94a3b8" }}>
-                 Application URL: http://localhost:3000/jobs/{job.id}/apply
+                 Application URL: {typeof window !== "undefined" ? window.location.origin : ""}/jobs/{job.id}/apply
               </div>
+
             </div>
           ))}
         </div>
