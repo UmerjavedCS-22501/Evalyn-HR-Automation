@@ -15,11 +15,13 @@ def send_application_email(candidate_data: dict, job_title: str, ats_score: int 
     Sends a professional HR notification with candidate details, ATS evaluation, and CV attachment.
     """
     try:
+        print(f"[EMAIL] Triggered send_application_email for: {candidate_data['full_name']}")
         msg = MIMEMultipart("alternative")
         msg['From'] = SMTP_USER
         msg['To'] = SMTP_USER  # Admin/HR Email
         msg['Subject'] = f"[{ats_score}% Match] New Candidate: {candidate_data['full_name']} for {job_title}"
 
+        # ... (rest of the content generation)
         plain_text = f"""
 HR NOTIFICATION: NEW QUALIFIED CANDIDATE
 ----------------------------------------
@@ -134,18 +136,25 @@ The candidate's Resume (CV) is attached for your review.
             part.add_header("Content-Disposition", f"attachment; filename= {filename}")
             msg.attach(part)
 
+        print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
+        print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
+        print(f"[EMAIL] Login successful, sending mail...")
         server.sendmail(SMTP_USER, SMTP_USER, msg.as_string())
         server.quit()
 
-        print(f"Email sent successfully for application from {candidate_data['full_name']}")
+        print(f"[EMAIL] ✅ Email sent successfully for application from {candidate_data['full_name']}")
         return True
 
-    except Exception as e:
-        print(f"Failed to send email: {e}")
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[EMAIL] ❌ SMTP Authentication failed: {e}")
         return False
+    except Exception as e:
+        print(f"[EMAIL] ❌ Failed to send application email: {e}")
+        return False
+
 
 
 def pick_interview_slot() -> tuple:
@@ -207,6 +216,7 @@ def send_interview_email(
     slot for Google Calendar.
     """
     try:
+        print(f"[EMAIL] Triggered send_interview_email for: {candidate_name}")
         if not interview_date_str or not interview_time:
             _, interview_date_str, interview_time = pick_interview_slot()
         interview_date = interview_date_str  # alias for template use
@@ -216,6 +226,7 @@ def send_interview_email(
         msg['To'] = candidate_email
         msg['Subject'] = f"Interview Invitation - {job_title} | Evalyn"
 
+        # ... (rest of the content generation)
         plain = f"""
 Dear {candidate_name},
 
@@ -314,26 +325,35 @@ Evalyn AI Talent Acquisition
         msg.attach(MIMEText(plain, "plain"))
         msg.attach(MIMEText(html, "html"))
 
+        print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
+        print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
+        print(f"[EMAIL] Login successful, sending mail...")
         server.sendmail(SMTP_USER, candidate_email, msg.as_string())
         server.quit()
 
-        print(f"Interview invitation sent to {candidate_email} (ATS: {ats_score}%) — {interview_date} at {interview_time}")
+        print(f"[EMAIL] ✅ Interview invitation sent to {candidate_email} (ATS: {ats_score}%) — {interview_date} at {interview_time}")
         return True
 
-    except Exception as e:
-        print(f"Failed to send interview email to {candidate_email}: {e}")
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[EMAIL] ❌ SMTP Authentication failed for interview email: {e}")
         return False
+    except Exception as e:
+        print(f"[EMAIL] ❌ Failed to send interview email to {candidate_email}: {e}")
+        return False
+
 
 def send_review_request_email(job_id: int, job_title: str, manager_email: str = "umerawan.revnix@gmail.com"):
     """
     Sends an email to the Operation Manager requesting a review of a generated job post.
     """
     try:
+        print(f"[EMAIL] Triggered send_review_request_email for Job: {job_title}")
         review_link = f"{FRONTEND_URL}/jobs/review/{job_id}"
 
+        # ... (rest of the logic)
         msg = MIMEMultipart("alternative")
         msg['From'] = SMTP_USER
         msg['To'] = manager_email
@@ -401,16 +421,17 @@ Evalyn AI Recruitment System
         msg.attach(MIMEText(html, "html"))
 
         print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
-        print(f"[EMAIL] Sending from: {SMTP_USER} → to: {manager_email}")
-
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
+        print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
+        print(f"[EMAIL] Login successful, sending mail...")
         server.sendmail(SMTP_USER, [manager_email], msg.as_string())
         server.quit()
 
         print(f"[EMAIL] ✅ Review request sent to {manager_email} for Job '{job_title}' (ID:{job_id})")
         return True
+
 
     except smtplib.SMTPAuthenticationError as e:
         print(f"[EMAIL] ❌ SMTP Authentication failed: {e}")
@@ -437,7 +458,9 @@ def send_offer_letter_email(
     Sends a professional HTML offer letter to the candidate using the requested template.
     """
     try:
+        print(f"[EMAIL] Triggered send_offer_letter_email for: {candidate_name}")
         offer_link = f"{FRONTEND_URL}/offer/{application_id}"
+        # ... (rest of the logic)
         today_date = date.today().strftime("%B %d, %Y")
         company_name = "US Tech"
         company_address = "GT road Roshen PLAZA 2nd floor"
@@ -547,17 +570,24 @@ Review and respond online: {offer_link}
         msg.attach(MIMEText(plain, "plain"))
         msg.attach(MIMEText(html, "html"))
 
+        print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
+        print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
+        print(f"[EMAIL] Login successful, sending mail...")
         server.sendmail(SMTP_USER, candidate_email, msg.as_string())
         server.quit()
 
         print(f"[EMAIL] ✅ Formal offer letter sent to {candidate_email} for {job_title}")
         return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[EMAIL] ❌ SMTP Authentication failed for offer letter: {e}")
+        return False
     except Exception as e:
         print(f"[EMAIL] ❌ Failed to send offer letter: {e}")
         return False
+
 
 def send_onboarding_email(
     candidate_name: str,
@@ -569,6 +599,7 @@ def send_onboarding_email(
     Sends a formal invitation to the candidate to start their onboarding process.
     """
     try:
+        print(f"[EMAIL] Triggered send_onboarding_email for: {candidate_name}")
         onboarding_link = f"{FRONTEND_URL}/onboarding/{application_id}"
         company_name = "US Tech"
         
@@ -577,6 +608,7 @@ def send_onboarding_email(
         msg['To'] = candidate_email
         msg['Subject'] = f"Action Required: Start Your Onboarding - {job_title} | {company_name}"
 
+        # ... (rest of content)
         plain = f"""
 Dear {candidate_name},
 
@@ -651,14 +683,21 @@ The {company_name} HR Team
         msg.attach(MIMEText(plain, "plain"))
         msg.attach(MIMEText(html, "html"))
 
+        print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
         server.starttls()
+        print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
+        print(f"[EMAIL] Login successful, sending mail...")
         server.sendmail(SMTP_USER, candidate_email, msg.as_string())
         server.quit()
 
         print(f"[EMAIL] ✅ Onboarding invitation sent to {candidate_email}")
         return True
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"[EMAIL] ❌ SMTP Authentication failed for onboarding email: {e}")
+        return False
     except Exception as e:
         print(f"[EMAIL] ❌ Failed to send onboarding email: {e}")
         return False
+
