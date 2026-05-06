@@ -11,7 +11,9 @@ router = APIRouter()
 
 class JobCreate(BaseModel):
     title: str
+    user_id: Optional[int] = None # The ID of the logged-in user
     department: Optional[str] = None
+    # ... rest of the fields
     location: Optional[str] = None
     type: Optional[str] = None
     experience: Optional[str] = None
@@ -36,10 +38,10 @@ def get_job_structure(prompt: str):
     return data
 
 @router.post("/generate-job")
-def create_job(job_data: Optional[JobCreate] = Body(None), title: Optional[str] = None, db: Session = Depends(get_db)):
+def create_job(job_data: Optional[JobCreate] = Body(None), title: Optional[str] = None, user_id: Optional[int] = None, db: Session = Depends(get_db)):
     # Backward compatibility: if title is passed as query param instead of body
     if not job_data and title:
-        job_data = JobCreate(title=title)
+        job_data = JobCreate(title=title, user_id=user_id)
     
     if not job_data:
         # Check if they sent title in body instead of query
@@ -60,6 +62,7 @@ def create_job(job_data: Optional[JobCreate] = Body(None), title: Optional[str] 
     
     # Save to Database
     job = Job(
+        user_id=job_data.user_id,
         title=job_data.title,
         department=job_data.department,
         location=job_data.location,
@@ -94,8 +97,12 @@ def create_job(job_data: Optional[JobCreate] = Body(None), title: Optional[str] 
     }
 
 @router.get("/jobs/all")
-def get_all_jobs(db: Session = Depends(get_db)):
-    return db.query(Job).order_by(Job.id.desc()).all()
+def get_all_jobs(user_id: Optional[int] = None, db: Session = Depends(get_db)):
+    query = db.query(Job)
+    if user_id:
+        query = query.filter(Job.user_id == user_id)
+    return query.order_by(Job.id.desc()).all()
+
 
 @router.get("/job/{job_id}")
 def get_job(job_id: int, db: Session = Depends(get_db)):

@@ -79,10 +79,17 @@ export default function NewJobPage() {
     setIsSubmitting(true);
     
     try {
+      const userStr = localStorage.getItem("user");
+      let userId = null;
+      if (userStr) {
+        const user = JSON.parse(userStr);
+        userId = user.id;
+      }
+
       const res = await fetch(`${API_BASE_URL}/generate-job`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, user_id: userId })
       });
       
       if (res.ok) {
@@ -98,6 +105,7 @@ export default function NewJobPage() {
       setIsSubmitting(false);
     }
   };
+
 
   return (
     <div className={styles.container}>

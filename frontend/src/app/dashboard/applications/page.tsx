@@ -45,7 +45,16 @@ export default function ApplicationsPage() {
   const [sendingOffer, setSendingOffer] = useState(false);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/applications/all`)
+    const userStr = localStorage.getItem("user");
+    let url = `${API_BASE_URL}/applications/all`;
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.id) {
+        url += `?user_id=${user.id}`;
+      }
+    }
+
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         // Flatten the job-grouped data for a unified production table
@@ -60,6 +69,7 @@ export default function ApplicationsPage() {
       .catch(err => console.error("Fetch error", err))
       .finally(() => setLoading(false));
   }, []);
+
 
   // Extract unique job titles and statuses for filters
   const uniqueJobs = Array.from(new Set(applicants.map(a => a.job_title)));

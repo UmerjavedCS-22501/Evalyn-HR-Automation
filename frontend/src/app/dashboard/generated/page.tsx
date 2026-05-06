@@ -66,7 +66,17 @@ export default function GeneratedJobsPage() {
   useEffect(() => {
     const fetchJobs = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/jobs/all`); 
+        const userStr = localStorage.getItem("user");
+        let url = `${API_BASE_URL}/jobs/all`;
+        
+        if (userStr) {
+          const user = JSON.parse(userStr);
+          if (user.id) {
+            url += `?user_id=${user.id}`;
+          }
+        }
+
+        const res = await fetch(url); 
         const data = await res.json();
         setJobs(data);
       } catch (err) {
@@ -77,6 +87,7 @@ export default function GeneratedJobsPage() {
     };
     fetchJobs();
   }, []);
+
 
   const handleDelete = async (jobId: number) => {
     if (!confirm("Are you sure you want to delete this job and all its applications?")) return;

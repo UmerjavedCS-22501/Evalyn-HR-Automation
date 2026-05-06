@@ -30,12 +30,22 @@ export default function OnboardingPage() {
   };
 
   const fetchCandidates = () => {
-    fetch(`${API_BASE_URL}/applications/hired`)
+    const userStr = localStorage.getItem("user");
+    let url = `${API_BASE_URL}/applications/hired`;
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user.id) {
+        url += `?user_id=${user.id}`;
+      }
+    }
+
+    fetch(url)
       .then(res => res.json())
       .then(data => setCandidates(data))
       .catch(err => console.error("Fetch error", err))
       .finally(() => setLoading(false));
   };
+
 
   useEffect(() => {
     fetchCandidates();

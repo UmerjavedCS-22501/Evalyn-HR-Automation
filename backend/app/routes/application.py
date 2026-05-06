@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.db.database import get_db, SessionLocal
@@ -119,10 +120,15 @@ async def apply_to_job(
 
 
 @router.get("/all")
-def get_all_applications(db: Session = Depends(get_db)):
-    jobs = db.query(Job).all()
+def get_all_applications(user_id: Optional[int] = None, db: Session = Depends(get_db)):
+    query = db.query(Job)
+    if user_id:
+        query = query.filter(Job.user_id == user_id)
+    
+    jobs = query.all()
     result = []
     for job in jobs:
+        # ... rest of the logic
         apps = db.query(Application).filter(
             Application.job_id == job.id,
             ~Application.status.in_(["Hired", "Onboarding Completed"])
@@ -157,10 +163,15 @@ def get_all_applications(db: Session = Depends(get_db)):
         })
     return result
 
+
 @router.get("/hired")
-def get_hired_applications(db: Session = Depends(get_db)):
+def get_hired_applications(user_id: Optional[int] = None, db: Session = Depends(get_db)):
     """Admin endpoint: returns all hired applications for onboarding."""
-    apps = db.query(Application).filter(Application.status.in_(["Hired", "Onboarding Completed"])).all()
+    query = db.query(Application).join(Job).filter(Application.status.in_(["Hired", "Onboarding Completed"]))
+    if user_id:
+        query = query.filter(Job.user_id == user_id)
+    
+    apps = query.all()
     if not apps:
         return []
         

@@ -1,11 +1,13 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
 from app.db.database import Base
 
 class Job(Base):
     __tablename__ = "jobs"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True) # ID of the HR/Recruiter who created it
     title = Column(String, index=True)
+
     department = Column(String, nullable=True)
     location = Column(String, nullable=True)
     type = Column(String, nullable=True)
