@@ -7,7 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from app.config.setting import SMTP_USER, SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT, FRONTEND_URL
+from app.config.setting import SMTP_USER, SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT, FRONTEND_URL, MANAGER_EMAIL
 
 
 def send_application_email(candidate_data: dict, job_title: str, ats_score: int = None, ats_summary: str = None):
@@ -345,10 +345,12 @@ Evalyn AI Talent Acquisition
         return False
 
 
-def send_review_request_email(job_id: int, job_title: str, manager_email: str = "umerawan.revnix@gmail.com"):
+def send_review_request_email(job_id: int, job_title: str, manager_email: str = None):
     """
     Sends an email to the Operation Manager requesting a review of a generated job post.
     """
+    if manager_email is None:
+        manager_email = MANAGER_EMAIL
     try:
         print(f"[EMAIL] Triggered send_review_request_email for Job: {job_title}")
         review_link = f"{FRONTEND_URL}/jobs/review/{job_id}"

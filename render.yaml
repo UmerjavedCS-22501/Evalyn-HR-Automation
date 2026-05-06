@@ -24,6 +24,9 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false # Set to https://evalyn-hr-automation-frontend.onrender.com
+      - key: MANAGER_EMAIL
+        sync: false # The email that receives job review requests
+
 
   # Frontend Next.js Service
   - type: web

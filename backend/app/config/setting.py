@@ -15,4 +15,6 @@ SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 
 # Application URLs
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+MANAGER_EMAIL = os.getenv("MANAGER_EMAIL", "umerawan.revnix@gmail.com")
+
 
