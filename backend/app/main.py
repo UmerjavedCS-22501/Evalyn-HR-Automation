@@ -15,8 +15,18 @@ from app.models.application import Application
 # Create tables
 try:
     Base.metadata.create_all(bind=engine)
+    # Manual migration hot-fix for existing tables
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE jobs ADD COLUMN IF NOT EXISTS user_id INTEGER;"))
+            conn.commit()
+            print("Verified user_id column in jobs table")
+        except Exception as migration_error:
+            print(f"Migration notice (can be ignored if column exists): {migration_error}")
 except Exception as e:
-    print(f"Database connection error: {e}")
+    print(f"Database initialization error: {e}")
+
 
 app = FastAPI(title="Evalyn - AI LinkedIn Assistant")
 
