@@ -20,10 +20,14 @@ except Exception as e:
 app = FastAPI(title="Evalyn - AI LinkedIn Assistant")
 
 # Add CORS Middleware
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+origins = [
+    "https://evalyn-hr-automation-frontend.onrender.com",
+    "http://localhost:3000", # keeping for local development
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[frontend_url, "http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
