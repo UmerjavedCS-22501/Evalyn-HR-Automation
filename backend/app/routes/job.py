@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, Body, BackgroundTasks
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.models.job import Job
@@ -142,21 +142,21 @@ class ReviewSubmission(BaseModel):
     status: str # "Approved" or "Changes Requested"
     feedback: Optional[str] = None
 
+
+
 @router.post("/job/{job_id}/request-review")
-def request_job_review(job_id: int, db: Session = Depends(get_db)):
+def request_job_review(job_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     job = db.query(Job).filter(Job.id == job_id).first()
     if not job:
         raise HTTPException(status_code=404, detail="Job not found")
     
-    # Send email
-    success = send_review_request_email(job_id, job.title)
+    # Send email in background
+    background_tasks.add_task(send_review_request_email, job_id, job.title)
     
-    if success:
-        job.approval_status = "Pending Review"
-        db.commit()
-        return {"message": "Review request sent"}
-    else:
-        raise HTTPException(status_code=500, detail="Failed to send review email")
+    job.approval_status = "Pending Review"
+    db.commit()
+    return {"message": "Review request sent (processing in background)"}
+
 
 @router.post("/job/{job_id}/submit-review")
 def submit_job_review(job_id: int, submission: ReviewSubmission, db: Session = Depends(get_db)):

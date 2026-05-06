@@ -137,7 +137,7 @@ The candidate's Resume (CV) is attached for your review.
             msg.attach(part)
 
         print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
         server.starttls()
         print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
@@ -326,7 +326,7 @@ Evalyn AI Talent Acquisition
         msg.attach(MIMEText(html, "html"))
 
         print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
         server.starttls()
         print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
@@ -421,7 +421,7 @@ Evalyn AI Recruitment System
         msg.attach(MIMEText(html, "html"))
 
         print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
         server.starttls()
         print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
@@ -571,7 +571,7 @@ Review and respond online: {offer_link}
         msg.attach(MIMEText(html, "html"))
 
         print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
         server.starttls()
         print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)
@@ -684,7 +684,7 @@ The {company_name} HR Team
         msg.attach(MIMEText(html, "html"))
 
         print(f"[EMAIL] Connecting to SMTP: {SMTP_SERVER}:{SMTP_PORT}")
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=15)
         server.starttls()
         print(f"[EMAIL] Attempting login for: {SMTP_USER}")
         server.login(SMTP_USER, SMTP_PASSWORD)

@@ -298,7 +298,7 @@ def update_training(app_id: int, progress: dict, db: Session = Depends(get_db)):
     return {"status": "success", "progress": new_progress}
 
 @router.post("/{app_id}/send-onboarding-link")
-def send_onboarding_link(app_id: int, db: Session = Depends(get_db)):
+def send_onboarding_link(app_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     from app.services.email_service import send_onboarding_email
     app_record = db.query(Application).filter(Application.id == app_id).first()
     if not app_record:
@@ -306,16 +306,14 @@ def send_onboarding_link(app_id: int, db: Session = Depends(get_db)):
     
     job = db.query(Job).filter(Job.id == app_record.job_id).first()
     
-    try:
-        send_onboarding_email(
-            candidate_name=app_record.full_name,
-            candidate_email=app_record.email,
-            job_title=job.title if job else "Position",
-            application_id=app_id
-        )
-        return {"status": "success", "message": "Onboarding invitation sent"}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    background_tasks.add_task(
+        send_onboarding_email,
+        candidate_name=app_record.full_name,
+        candidate_email=app_record.email,
+        job_title=job.title if job else "Position",
+        application_id=app_id
+    )
+    return {"status": "success", "message": "Onboarding invitation sent (processing in background)"}
 
 @router.patch("/{app_id}/status")
 def update_application_status(app_id: int, status_update: dict, db: Session = Depends(get_db)):
@@ -362,7 +360,7 @@ def delete_application(app_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 @router.post("/{app_id}/send-offer")
-def send_offer(app_id: int, offer_data: dict, db: Session = Depends(get_db)):
+def send_offer(app_id: int, offer_data: dict, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     app_record = db.query(Application).filter(Application.id == app_id).first()
     if not app_record:
         raise HTTPException(status_code=404, detail="Application not found")
@@ -385,7 +383,8 @@ def send_offer(app_id: int, offer_data: dict, db: Session = Depends(get_db)):
         app_record.offer_status = "Pending"
         db.commit()
         
-        send_offer_letter_email(
+        background_tasks.add_task(
+            send_offer_letter_email,
             candidate_name=app_record.full_name,
             candidate_email=app_record.email,
             job_title=job.title if job else "Position",
@@ -396,7 +395,7 @@ def send_offer(app_id: int, offer_data: dict, db: Session = Depends(get_db)):
             acceptance_deadline=acceptance_deadline
         )
         
-        return {"status": "success", "message": "Offer letter sent successfully"}
+        return {"status": "success", "message": "Offer letter processing in background"}
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
